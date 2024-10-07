@@ -12,6 +12,7 @@ print("Starting")
 
 myFleet = []
 enemyFleet = []
+all_coordinates = [Position(column, row) for column in Letter for row in range(1, 9)]
 
 def main():
     TelemetryClient.init()
@@ -60,8 +61,17 @@ def start_game():
     mark_segment("GAME STARTED. GOOD LUCK!")
     while True:
         print()
-        print("Player, it's your turn")
-        position = parse_position(input("Enter coordinates for your shot :"))
+        
+        mark_segment("PLAYER, IT IS YOUR TURN!")
+
+        valid_position = False
+        while (not valid_position):
+            position = parse_position(input("Enter coordinates for your shot :"))
+            if (position in all_coordinates):
+                valid_position = True
+            else:
+               mark_segment("INVALID POSITION, RETRY!") 
+
         is_hit = GameController.check_is_hit(enemyFleet, position)
         if is_hit:
             print_hit("Yeah ! Nice hit !")
@@ -135,7 +145,13 @@ def initialize_myFleet():
         print(f"Please enter the positions for the {ship.name} (size: {ship.size})")
 
         for i in range(ship.size):
-            position_input = input(f"Enter position {i+1} of {ship.size} (i.e A3):")
+            valid_position = False
+            while (not valid_position):
+                position_input = parse_position(input("Enter coordinates for your shot :"))
+                if (position_input in all_coordinates):
+                    valid_position = True
+                else:
+                   mark_segment("INVALID POSITION, RETRY!") 
             ship.add_position(position_input)
             TelemetryClient.trackEvent('Player_PlaceShipPosition', {'custom_dimensions': {'Position': position_input, 'Ship': ship.name, 'PositionInShip': i}})
 
