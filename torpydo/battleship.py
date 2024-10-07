@@ -42,8 +42,10 @@ def start_game():
     if(platform.system().lower()=="windows"):
         cmd='cls'
     else:
-        cmd='clear'   
+        cmd='clear'
+    
     os.system(cmd)
+
     print(r'''
                   __
                  /  \
@@ -55,41 +57,27 @@ def start_game():
    |     /_\
     \    \_/
      """"""""''')
-
+    mark_segment("GAME STARTED. GOOD LUCK!")
     while True:
         print()
         print("Player, it's your turn")
         position = parse_position(input("Enter coordinates for your shot :"))
         is_hit = GameController.check_is_hit(enemyFleet, position)
         if is_hit:
-            print(r'''
-                \          .  ./
-              \   .:"";'.:..""   /
-                 (M^^.^~~:.'"").
-            -   (/  .    . . \ \)  -
-               ((| :. ~ ^  :. .|))
-            -   (\- |  \ /  |  /)  -
-                 -\  \     /  /-
-                   \  \   /  /''')
+            print_hit("Yeah ! Nice hit !")
+        else:
+            print_miss("Miss")
 
-        print("Yeah ! Nice hit !" if is_hit else "Miss")
         TelemetryClient.trackEvent('Player_ShootPosition', {'custom_dimensions': {'Position': str(position), 'IsHit': is_hit}})
 
         position = get_random_position()
         is_hit = GameController.check_is_hit(myFleet, position)
-        print()
-        print(f"Computer shoot in {str(position)} and {'hit your ship!' if is_hit else 'miss'}")
+        
         TelemetryClient.trackEvent('Computer_ShootPosition', {'custom_dimensions': {'Position': str(position), 'IsHit': is_hit}})
         if is_hit:
-            print(r'''
-                \          .  ./
-              \   .:"";'.:..""   /
-                 (M^^.^~~:.'"").
-            -   (/  .    . . \ \)  -
-               ((| :. ~ ^  :. .|))
-            -   (\- |  \ /  |  /)  -
-                 -\  \     /  /-
-                   \  \   /  /''')
+            print_hit("Enemy hit your ship!")
+        else:
+            print_miss("Enemy missed your ship")
 
 def parse_position(input: str):
     letter = Letter[input.upper()[:1]]
@@ -109,8 +97,10 @@ def get_random_position():
     return position
 
 def initialize_game():
+    mark_segment("INITIALIZE PLAYER SHIPS")
     initialize_myFleet()
 
+    mark_segment("INITIALIZE ENEMY SHIPS")
     initialize_enemyFleet()
 
 def initialize_myFleet():
@@ -128,6 +118,10 @@ def initialize_myFleet():
             position_input = input(f"Enter position {i+1} of {ship.size} (i.e A3):")
             ship.add_position(position_input)
             TelemetryClient.trackEvent('Player_PlaceShipPosition', {'custom_dimensions': {'Position': position_input, 'Ship': ship.name, 'PositionInShip': i}})
+
+
+        ship_text = f"The {ship.name} is placed!"
+        mark_segment(ship_text)
 
 def initialize_enemyFleet():
     global enemyFleet
@@ -155,6 +149,32 @@ def initialize_enemyFleet():
 
     enemyFleet[4].positions.append(Position(Letter.C, 5))
     enemyFleet[4].positions.append(Position(Letter.C, 6))
+
+def mark_segment(segment):
+    width = 73  # This is the approximate width of the line of '#'
+    centered_segment = segment.center(width)  # Center the segment within the line width
+
+    print(Fore.YELLOW + r"""
+    #############################################################################
+    #{}#
+    #############################################################################
+    """.format(centered_segment) + Style.RESET_ALL)
+
+def print_hit(additionText):
+    print(additionText)
+    print(r'''
+                \          .  ./
+              \   .:"";'.:..""   /
+                 (M^^.^~~:.'"").
+            -   (/  .    . . \ \)  -
+               ((| :. ~ ^  :. .|))
+            -   (\- |  \ /  |  /)  -
+                 -\  \     /  /-
+                   \  \   /  /''')
+
+def print_miss(additionText):
+    print(additionText)
+    print()
 
 if __name__ == '__main__':
     main()
