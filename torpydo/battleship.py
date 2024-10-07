@@ -12,6 +12,11 @@ print("Starting")
 
 myFleet = []
 enemyFleet = []
+myHitList = []
+myMissedList = []
+enemyHitList = []
+enemyMissedList = []
+
 
 def main():
     TelemetryClient.init()
@@ -37,7 +42,7 @@ def main():
     start_game()
 
 def start_game():
-    global myFleet, enemyFleet
+    global myFleet, enemyFleet, myShotList, enemyShotList
     # clear the screen
     if(platform.system().lower()=="windows"):
         cmd='cls'
@@ -62,6 +67,7 @@ def start_game():
         position = parse_position(input("Enter coordinates for your shot :"))
         is_hit = GameController.check_is_hit(enemyFleet, position)
         if is_hit:
+            myHitList.append(position)
             print(r'''
                 \          .  ./
               \   .:"";'.:..""   /
@@ -71,9 +77,15 @@ def start_game():
             -   (\- |  \ /  |  /)  -
                  -\  \     /  /-
                    \  \   /  /''')
+        else:
+            myMissedList.append(position)
 
         print("Yeah ! Nice hit !" if is_hit else "Miss")
         TelemetryClient.trackEvent('Player_ShootPosition', {'custom_dimensions': {'Position': str(position), 'IsHit': is_hit}})
+
+        if GameController.isFleetDestroyed(enemyFleet, myHitList):
+            print("You won! You rock!")
+            exit
 
         position = get_random_position()
         is_hit = GameController.check_is_hit(myFleet, position)
@@ -81,6 +93,7 @@ def start_game():
         print(f"Computer shoot in {str(position)} and {'hit your ship!' if is_hit else 'miss'}")
         TelemetryClient.trackEvent('Computer_ShootPosition', {'custom_dimensions': {'Position': str(position), 'IsHit': is_hit}})
         if is_hit:
+            enemyHitList.append(position)
             print(r'''
                 \          .  ./
               \   .:"";'.:..""   /
@@ -89,7 +102,13 @@ def start_game():
                ((| :. ~ ^  :. .|))
             -   (\- |  \ /  |  /)  -
                  -\  \     /  /-
-                   \  \   /  /''')
+                   \  \   /  /''')     
+        else:
+            enemyMissedList.append(position)
+        
+        if GameController.isFleetDestroyed(myFleet, enemyHitList):
+            print("You lost! You suck!")
+            exit
 
 def parse_position(input: str):
     letter = Letter[input.upper()[:1]]

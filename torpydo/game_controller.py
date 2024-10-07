@@ -36,3 +36,21 @@ class GameController(object):
         position = Position(letter, number)
 
         return position
+    
+    def isFleetDestroyed(ships: list, hitList: list):
+        if ships is None:
+            raise ValueError('ships is null')
+
+        if hitList is None:
+            raise ValueError('hitList is null')
+
+        coordinateCount = 0
+        for ship in ships:
+            for position in ship.positions:
+                coordinateCount = coordinateCount + 1
+
+        print(coordinateCount, len(hitList))
+        if coordinateCount == len(hitList):
+            return True
+
+        return False
