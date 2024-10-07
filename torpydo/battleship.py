@@ -42,7 +42,7 @@ def main():
     start_game()
 
 def start_game():
-    global myFleet, enemyFleet, myShotList, enemyShotList
+    global myFleet, enemyFleet, myHitList, myMissedList, enemyHitList, enemyMissedList
     # clear the screen
     if(platform.system().lower()=="windows"):
         cmd='cls'
