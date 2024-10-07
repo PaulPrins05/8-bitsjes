@@ -65,6 +65,7 @@ def start_game():
         mark_segment("PLAYER, IT IS YOUR TURN!")
 
         valid_position = False
+        position = parse_position("A10")
         while (not valid_position):
             position = parse_position(input("Enter coordinates for your shot :"))
             if (position in all_coordinates):
@@ -145,10 +146,11 @@ def initialize_myFleet():
         print(f"Please enter the positions for the {ship.name} (size: {ship.size})")
 
         for i in range(ship.size):
+            position_input = input(f"Enter position {i+1} of {ship.size} (i.e A3):")
             valid_position = False
             while (not valid_position):
-                position_input = parse_position(input("Enter coordinates for your shot :"))
-                if (position_input in all_coordinates):
+                
+                if (parse_position(position_input) in all_coordinates):
                     valid_position = True
                 else:
                    mark_segment("INVALID POSITION, RETRY!") 
